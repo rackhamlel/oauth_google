@@ -9,7 +9,7 @@ if (isset($_GET['code'])) {
     // Paramètres nécessaires pour obtenir le token d'accès OAuth
     $clientId = '372301446734-afdu3h25qb1jjoau8694b7fi5igfalpf.apps.googleusercontent.com';
     $clientSecret = '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';
-    $redirectUri = 'http://localhost/oauth_google/connection.php'; // Assurez-vous que l'URI de redirection correspond à celui que vous avez configuré dans le Google Developer Console
+    $redirectUri = 'http://localhost/oauth_google/config.php'; 
     $tokenEndpoint = 'https://www.googleapis.com/oauth2/v4/token';
 
     // Paramètres pour la requête POST pour obtenir le token d'accès
@@ -20,7 +20,7 @@ if (isset($_GET['code'])) {
         'redirect_uri' => $redirectUri,
         'grant_type' => 'authorization_code'
     );
-
+    //var_dump($tokenParams);
     // Initialisez cURL
     $ch = curl_init($tokenEndpoint);
 
@@ -38,15 +38,26 @@ if (isset($_GET['code'])) {
 
     // Analysez la réponse JSON
     $tokenData = json_decode($tokenResponse, true);
-
+    
     // Vérifiez si le token d'accès a été obtenu avec succès
     if (isset($tokenData['access_token'])) {
-        // Stockez le token d'accès dans la session (ou dans la base de données selon vos besoins)
+        // Stockez le token d'accès dans la session
         session_start();
-        $_SESSION['access_token'] = $tokenData;
-
-        // Redirigez l'utilisateur vers la page qui affiche ses informations (par exemple, profile.php)
-        header('Location: http://localhost/oauth_google/reussite.php');
+        $_SESSION['access_token'] = $tokenData['access_token'];
+    
+        // Utilisez le token d'accès pour récupérer les données utilisateur
+        $userInfoEndpoint = 'https://www.googleapis.com/oauth2/v3/userinfo';
+        $userInfoUrl = $userInfoEndpoint . '?access_token=' . $tokenData['access_token'];
+    
+        // Effectuez une requête GET pour récupérer les données utilisateur
+        $userInfoResponse = file_get_contents($userInfoUrl);
+        $userInfoData = json_decode($userInfoResponse, true);
+    
+        // Stockez les données utilisateur dans la session
+        $_SESSION['user_info'] = $userInfoData;
+    
+        // Redirigez l'utilisateur vers la page test.php
+        header('Location: http://localhost/oauth_google/test.php');
         exit;
     } else {
         echo 'Erreur lors de l\'obtention du token d\'accès.';

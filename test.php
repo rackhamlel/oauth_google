@@ -1,8 +1,21 @@
-<php 
-$connection = '1';
-session_start();
-$connection =  $_SESSION['access_token'];
+<?php
+// test.php
 
+session_start();
+
+// Vérifiez si les données utilisateur sont présentes dans la session
+if (isset($_SESSION['user_info'])) {
+    $userInfo = $_SESSION['user_info'];
+
+    // Affichez les données utilisateur
+    echo '<h1>votre email</h1>';
+    echo '<pre>';
+    echo $userInfo['email'];
+    //print_r($userInfo);
+    echo '</pre>';
+} else {
+    echo 'Aucune donnée utilisateur disponible.';
+}
 ?>
 
 <!DOCTYPE html>
